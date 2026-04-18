@@ -27,6 +27,7 @@ package com.questhelper.panel;
 import com.questhelper.QuestHelperConfig;
 import com.questhelper.QuestHelperPlugin;
 import com.questhelper.managers.QuestManager;
+import com.questhelper.panel.regionfiltering.RegionFilterPanel;
 import com.questhelper.panel.skillfiltering.SkillFilterPanel;
 import com.questhelper.questhelpers.BasicQuestHelper;
 import com.questhelper.questhelpers.QuestDetails;
@@ -39,6 +40,7 @@ import net.runelite.api.Client;
 import net.runelite.api.GameState;
 import net.runelite.api.QuestState;
 import net.runelite.api.Skill;
+import net.runelite.api.WorldType;
 import net.runelite.client.config.ConfigManager;
 import net.runelite.client.ui.ColorScheme;
 import net.runelite.client.ui.PluginPanel;
@@ -81,6 +83,8 @@ public class QuestHelperPanel extends PluginPanel
 	private JPanel statePanel;
 
 	private final JButton skillExpandButton = new JButton();
+	private JPanel regionsFilterSection;
+	private RegionFilterPanel regionFilterPanel;
 	private final IconTextField searchBar = new IconTextField();
 	private final FixedWidthPanel questListPanel = new FixedWidthPanel();
 	private final FixedWidthPanel questListWrapper = new FixedWidthPanel();
@@ -384,6 +388,53 @@ public class QuestHelperPanel extends PluginPanel
 			}
 		});
 
+		// Region filtering
+		JButton regionExpandButton = new JButton();
+		regionExpandButton.setForeground(Color.GRAY);
+		regionExpandButton.setIcon(COLLAPSED_ICON);
+		regionExpandButton.setHorizontalTextPosition(SwingConstants.LEFT);
+		regionExpandButton.setIconTextGap(10);
+
+		regionFilterPanel = new RegionFilterPanel(questHelperPlugin.spriteManager, () -> {
+			questHelperPlugin.getClientThread().invokeLater(questManager::updateQuestList);
+			int count = regionFilterPanel.getSelectedCount();
+			regionExpandButton.setText(count > 0 ? String.format("%d active", count) : "");
+		});
+		regionFilterPanel.setVisible(false);
+
+		JLabel regionFilterName = JGenerator.makeJLabel("Region filtering");
+		regionFilterName.setForeground(Color.WHITE);
+		questHelperPlugin.spriteManager.getSpriteAsync(2214, 0, sprite -> {
+			if (sprite != null)
+			{
+				SwingUtilities.invokeLater(() -> regionFilterName.setIcon(new ImageIcon(sprite)));
+			}
+		});
+
+		JPanel regionExpandBar = new JPanel();
+		regionExpandBar.setLayout(new BorderLayout());
+		regionExpandBar.setToolTipText("Choose league regions to filter quests by");
+		regionExpandBar.add(regionFilterName, BorderLayout.CENTER);
+		regionExpandBar.add(regionExpandButton, BorderLayout.EAST);
+
+		MouseAdapter regionExpandListener = new MouseAdapter()
+		{
+			@Override
+			public void mousePressed(MouseEvent mouseEvent)
+			{
+				regionFilterPanel.setVisible(!regionFilterPanel.isVisible());
+				regionExpandButton.setIcon(regionFilterPanel.isVisible() ? EXPANDED_ICON : COLLAPSED_ICON);
+			}
+		};
+		regionExpandButton.addMouseListener(regionExpandListener);
+		regionExpandBar.addMouseListener(regionExpandListener);
+
+		regionsFilterSection = new JPanel();
+		regionsFilterSection.setLayout(new BorderLayout());
+		regionsFilterSection.setMinimumSize(new Dimension(PANEL_WIDTH, 0));
+		regionsFilterSection.add(regionExpandBar, BorderLayout.CENTER);
+		regionsFilterSection.add(regionFilterPanel, BorderLayout.SOUTH);
+
 		// Filter dropdown + search
 		allDropdownSections.setLayout(new BoxLayout(allDropdownSections, BoxLayout.Y_AXIS));
 		allDropdownSections.setBorder(new EmptyBorder(0, 0, 10, 0));
@@ -391,6 +442,10 @@ public class QuestHelperPanel extends PluginPanel
 		allDropdownSections.add(difficultyPanel);
 		allDropdownSections.add(orderPanel);
 		allDropdownSections.add(skillsFilterPanel);
+		allDropdownSections.add(regionsFilterSection);
+
+		// Set initial visibility based on config and current world type
+		updateRegionFilterVisibility(questHelperPlugin.getClient().getWorldType().contains(WorldType.SEASONAL));
 
 		filterStackPanel.setLayout(new BoxLayout(filterStackPanel, BoxLayout.Y_AXIS));
 		filterStackPanel.setOpaque(false);
@@ -857,6 +912,33 @@ public class QuestHelperPanel extends PluginPanel
 		else
 		{
 			skillExpandButton.setText(String.format("%d active", numFilteredSkills));
+		}
+	}
+
+	/**
+	 * Updates visibility of the region filter section based on config and world type.
+	 */
+	public void updateRegionFilterVisibility(boolean isLeagueWorld)
+	{
+		QuestHelperConfig.RegionFilterVisibility visibility = questHelperPlugin.getConfig().regionFilterVisibility();
+		boolean shouldShow;
+		switch (visibility)
+		{
+			case SHOW:
+				shouldShow = true;
+				break;
+			case HIDE:
+				shouldShow = false;
+				break;
+			case AUTO:
+			default:
+				shouldShow = isLeagueWorld;
+				break;
+		}
+		regionsFilterSection.setVisible(shouldShow);
+		if (!shouldShow)
+		{
+			regionFilterPanel.clearSelection();
 		}
 	}
 }

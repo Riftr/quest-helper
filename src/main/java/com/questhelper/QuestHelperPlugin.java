@@ -61,6 +61,7 @@ import net.runelite.client.events.ConfigChanged;
 import net.runelite.client.events.RuneScapeProfileChanged;
 import net.runelite.client.game.ItemManager;
 import net.runelite.client.game.SkillIconManager;
+import net.runelite.client.game.SpriteManager;
 import net.runelite.client.plugins.Plugin;
 import net.runelite.client.plugins.PluginDescriptor;
 import net.runelite.client.plugins.bank.BankSearch;
@@ -164,7 +165,11 @@ public class QuestHelperPlugin extends Plugin
 	public SkillIconManager skillIconManager;
 
 	@Inject
+	public SpriteManager spriteManager;
+
+  @Inject
 	private QuestBankTabInterface questBankTabInterface;
+
 
 	private QuestHelperPanel panel;
 
@@ -329,6 +334,8 @@ public class QuestHelperPlugin extends Plugin
 			questBankManager.setUnknownInitialState();
 			playerStateManager.setUnknownInitialState();
 			potionStorage.updateCachedPotions = true;
+			boolean isLeague = client.getWorldType().contains(WorldType.SEASONAL);
+			SwingUtilities.invokeLater(() -> panel.updateRegionFilterVisibility(isLeague));
 			clientThread.invokeAtTickEnd(() -> {
 				questManager.setupRequirements();
 				questManager.setupOnLogin();
@@ -377,6 +384,12 @@ public class QuestHelperPlugin extends Plugin
 		if (!event.getGroup().equals(QuestHelperConfig.QUEST_HELPER_GROUP))
 		{
 			return;
+		}
+
+		if ("regionFilterVisibility".equals(event.getKey()))
+		{
+			boolean isLeague = client.getWorldType().contains(WorldType.SEASONAL);
+			SwingUtilities.invokeLater(() -> panel.updateRegionFilterVisibility(isLeague));
 		}
 
 		if (configEvents.contains(event.getKey()) || event.getKey().contains("skillfilter"))
