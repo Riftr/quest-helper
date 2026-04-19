@@ -140,39 +140,40 @@ public class ConditionalStep extends QuestStep implements OwnerStep
 
 	private Requirement passOnceCompleted(Requirement completion, QuestStep step)
 	{
-		var manualOverride = step.getSidebarManualSkipRequirement();
-		if (completion == null || manualOverride == null)
-		{
-			return completion;
-		}
-		// Only auto-tick the sidebar when completion becomes true (rising edge). If we setShouldPass every
-		// tick while the game still reports the step complete, an explicit untick is overwritten immediately.
-		final boolean[] completionWasPassingLastCheck = { false };
-		return not(new Requirement()
-		{
-			@Override
-			public boolean check(Client client)
-			{
-				if (manualOverride.check(client))
-				{
-					completionWasPassingLastCheck[0] = true;
-					return true;
-				}
-				boolean passed = completion.check(client);
-				if (passed && !completionWasPassingLastCheck[0])
-				{
-					manualOverride.setShouldPass(true);
-				}
-				completionWasPassingLastCheck[0] = passed;
-				return passed;
-			}
-
-			@Override
-			public @NotNull String getDisplayText()
-			{
-				return completion.getDisplayText();
-			}
-		});
+		return completion;
+//		var manualOverride = step.getSidebarManualSkipRequirement();
+//		if (completion == null || manualOverride == null)
+//		{
+//			return completion;
+//		}
+//		// Only auto-tick the sidebar when completion becomes true (rising edge). If we setShouldPass every
+//		// tick while the game still reports the step complete, an explicit untick is overwritten immediately.
+//		final boolean[] completionWasPassingLastCheck = { false };
+//		return not(new Requirement()
+//		{
+//			@Override
+//			public boolean check(Client client)
+//			{
+//				if (manualOverride.check(client))
+//				{
+//					completionWasPassingLastCheck[0] = true;
+//					return true;
+//				}
+//				boolean passed = completion.check(client);
+//				if (passed && !completionWasPassingLastCheck[0])
+//				{
+//					manualOverride.setShouldPass(true);
+//				}
+//				completionWasPassingLastCheck[0] = passed;
+//				return passed;
+//			}
+//
+//			@Override
+//			public @NotNull String getDisplayText()
+//			{
+//				return completion.getDisplayText();
+//			}
+//		});
 	}
 
 	private void checkForConditions(Requirement requirement)
