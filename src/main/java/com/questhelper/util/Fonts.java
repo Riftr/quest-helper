@@ -33,7 +33,9 @@ import java.util.HashMap;
 
 public class Fonts
 {
+	// Note: offset 3 is skipped for LARGE as it produces a glyph-hinting artifact on the system font (e.g. "0" renders poorly at that size).
 	private static final Font baseFont;
+
 	@Getter
 	private static final float defaultSize;
 
@@ -59,9 +61,13 @@ public class Fonts
 	 */
 	public static void setSize(int size)
 	{
-		originalFont = baseFont.deriveFont((float) size);
-		var attributes = new HashMap<TextAttribute, Object>(originalFont.getAttributes());
-		attributes.put(TextAttribute.UNDERLINE, TextAttribute.UNDERLINE_ON);
-		underlinedFont = originalFont.deriveFont(attributes);
+		var baseAttributes = new HashMap<TextAttribute, Object>(baseFont.getAttributes());
+		baseAttributes.put(TextAttribute.SIZE, (float) size);
+		baseAttributes.put(TextAttribute.KERNING, TextAttribute.KERNING_ON);
+		originalFont = baseFont.deriveFont(baseAttributes);
+
+		var underlineAttributes = new HashMap<TextAttribute, Object>(originalFont.getAttributes());
+		underlineAttributes.put(TextAttribute.UNDERLINE, TextAttribute.UNDERLINE_ON);
+		underlinedFont = originalFont.deriveFont(underlineAttributes);
 	}
 }

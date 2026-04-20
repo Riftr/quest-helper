@@ -241,9 +241,9 @@ public interface QuestHelperConfig extends Config
 	enum FontSize
 	{
 		DEFAULT(0),
-		LARGE(2),
-		LARGER(4),
-		LARGEST(8);
+		LARGE(4),
+		LARGER(6),
+		LARGEST(10);
 
 		private final int offset;
 
@@ -373,7 +373,7 @@ public interface QuestHelperConfig extends Config
 	@ConfigItem(
 		keyName = "fontSize",
 		name = "Font size",
-		description = "Change the font size used in the sidebar panel and overlay",
+		description = "Change the font size used in the sidebar panel",
 		section = sidebarDetailsSection
 	)
 	default FontSize fontSize()

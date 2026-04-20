@@ -61,7 +61,6 @@ public class QuestRewardsPanel extends JPanel
 		rewardsText.setEditable(false);
 		rewardsText.setFocusable(false);
 		rewardsText.setBackground(javax.swing.UIManager.getColor("Label.background"));
-		rewardsText.setFont(Fonts.getOriginalFont());
 		rewardsText.setBorder(new EmptyBorder(0, 0, 0, 0));
 
 		add(rewardsPanel, BorderLayout.CENTER);

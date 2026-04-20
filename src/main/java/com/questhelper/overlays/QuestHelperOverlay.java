@@ -29,10 +29,8 @@ package com.questhelper.overlays;
 
 import com.questhelper.QuestHelperPlugin;
 import com.questhelper.questhelpers.QuestHelper;
-import net.runelite.client.ui.FontManager;
 import net.runelite.client.ui.overlay.OverlayLayer;
 import net.runelite.client.ui.overlay.OverlayPanel;
-import net.runelite.client.ui.overlay.OverlayPriority;
 
 import javax.inject.Inject;
 import java.awt.*;
@@ -55,10 +53,6 @@ public class QuestHelperOverlay extends OverlayPanel
 	@Override
 	public Dimension render(Graphics2D graphics)
 	{
-		int fontSize = plugin.getConfig().fontSize().getSize();
-		Font overlayFont = FontManager.getRunescapeFont().deriveFont(Font.PLAIN, fontSize);
-		graphics.setFont(overlayFont);
-
 		if (!plugin.getConfig().showOverlay())
 		{
 			return super.render(graphics);
