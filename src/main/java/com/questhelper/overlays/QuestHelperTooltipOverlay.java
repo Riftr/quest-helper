@@ -26,6 +26,7 @@ package com.questhelper.overlays;
 
 import com.questhelper.QuestHelperPlugin;
 import net.runelite.api.Client;
+import net.runelite.client.ui.FontManager;
 import net.runelite.client.ui.overlay.OverlayLayer;
 import net.runelite.client.ui.overlay.OverlayPanel;
 import net.runelite.client.ui.overlay.OverlayPosition;
@@ -53,6 +54,10 @@ public class QuestHelperTooltipOverlay extends OverlayPanel
 	@Override
 	public Dimension render(Graphics2D graphics)
 	{
+		int fontSize = questHelperPlugin.getConfig().fontSize().getSize();
+		Font overlayFont = FontManager.getRunescapeFont().deriveFont(Font.PLAIN, fontSize);
+		graphics.setFont(overlayFont);
+
 		if (questHelperPlugin.getSelectedQuest() != null && questHelperPlugin.getSelectedQuest().getCurrentStep() != null)
 		{
 			questHelperPlugin.getSelectedQuest().getCurrentStep().renderQuestStepTooltip(panelComponent, !client.isMenuOpen(), false);

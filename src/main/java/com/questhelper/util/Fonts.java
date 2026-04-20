@@ -33,15 +33,33 @@ import java.util.HashMap;
 
 public class Fonts
 {
+	private static final Font baseFont;
 	@Getter
-	private static final Font originalFont;
+	private static final float defaultSize;
+
 	@Getter
-	private static final Font underlinedFont;
+	private static Font originalFont;
+	@Getter
+	private static Font underlinedFont;
 
 	static
 	{
 		var label = JGenerator.makeJTextArea();
-		originalFont = label.getFont();
+		baseFont = label.getFont();
+		defaultSize = baseFont.getSize2D();
+		originalFont = baseFont;
+		var attributes = new HashMap<TextAttribute, Object>(baseFont.getAttributes());
+		attributes.put(TextAttribute.UNDERLINE, TextAttribute.UNDERLINE_ON);
+		underlinedFont = baseFont.deriveFont(attributes);
+	}
+
+	/**
+	 * Update the global font size used by the sidebar panel.
+	 * Call this when the config changes.
+	 */
+	public static void setSize(int size)
+	{
+		originalFont = baseFont.deriveFont((float) size);
 		var attributes = new HashMap<TextAttribute, Object>(originalFont.getAttributes());
 		attributes.put(TextAttribute.UNDERLINE, TextAttribute.UNDERLINE_ON);
 		underlinedFont = originalFont.deriveFont(attributes);
